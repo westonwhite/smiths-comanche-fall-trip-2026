@@ -159,6 +159,91 @@
     cursor: pointer; line-height: 1; display: grid; place-items: center;
   }
 
+
+  /* Square map thumbs — family-friendly */
+  .photo-card {
+    width: 168px;
+  }
+  .photo-card img {
+    height: 148px; width: 148px; margin: 0 auto; object-fit: cover; border-radius: 10px;
+  }
+  .photo-card .cap { font: 650 13px/1.25 system-ui; text-align: center; }
+  .photo-card .hint { text-align: center; }
+  .photo-card .badge-play, .photo-pin .badge-play {
+    position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
+  }
+  .photo-card { position: relative; }
+  .photo-card .badge-play span, .photo-pin .badge-play span {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(10,16,28,.72); border: 2px solid var(--gold);
+    color: var(--gold-soft); font-size: 14px; display: grid; place-items: center;
+  }
+  .photo-pin {
+    width: 52px; height: 52px; border-radius: 12px; position: relative;
+  }
+  .photo-pin .badge-play span {
+    width: 22px; height: 22px; font-size: 10px; border-width: 1.5px;
+  }
+  .photo-pin-multi::after {
+    content: attr(data-count);
+    position: absolute; right: -6px; top: -6px;
+    min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px;
+    background: var(--gold); color: #0a101c; font: 700 10px/18px system-ui;
+    text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,.4);
+  }
+
+  .lightbox-inner { max-width: min(1600px, 96vw); width: 100%; }
+  .lightbox img, .lightbox video {
+    max-width: 100%; max-height: calc(92vh - 88px); border-radius: 12px;
+    border: 1px solid rgba(212,175,106,.35);
+    box-shadow: 0 20px 60px rgba(0,0,0,.6); object-fit: contain; background: #000;
+  }
+  .lightbox video { width: min(100%, 960px); }
+  .lb-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 1px solid rgba(212,175,106,.55); background: rgba(10,16,28,.88);
+    color: var(--gold-soft); font-size: 28px; line-height: 1; cursor: pointer;
+    display: none; place-items: center; z-index: 2;
+  }
+  .lb-nav.show { display: grid; }
+  .lb-prev { left: 4px; }
+  .lb-next { right: 4px; }
+  .lb-dots {
+    display: none; gap: 8px; justify-content: center; align-items: center; min-height: 14px;
+  }
+  .lb-dots.show { display: flex; }
+  .lb-dots span {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: rgba(240,226,192,.35); border: 1px solid rgba(212,175,106,.5);
+  }
+  .lb-dots span.on { background: var(--gold); }
+  .lb-count {
+    display: none; color: var(--muted); font: 600 12px/1 system-ui; letter-spacing: .04em;
+  }
+  .lb-count.show { display: block; text-align: center; }
+
+  .tap-hint {
+    position: absolute; z-index: 1100; left: 50%; bottom: 28px; transform: translateX(-50%);
+    background: rgba(10,16,28,.9); border: 1px solid rgba(212,175,106,.45);
+    color: var(--gold-soft); font: 650 14px/1.3 system-ui; padding: 10px 16px;
+    border-radius: 999px; pointer-events: none; box-shadow: 0 8px 24px rgba(0,0,0,.45);
+    opacity: 1; transition: opacity 1.2s ease;
+  }
+  .tap-hint.hide { opacity: 0; }
+  @media (max-width: 720px) {
+    .tap-hint { bottom: 18px; font-size: 13px; }
+    .lb-nav { width: 42px; height: 42px; font-size: 24px; }
+    .lightbox img, .lightbox video { max-height: calc(92vh - 110px); }
+  }
+
+  /* Desktop: legs list collapsed by default behind button */
+  #legend { display: none; margin-top: 8px; }
+  body.legs-open-desktop #legend { display: block; }
+  .view-btns button, .chip-btn {
+    font: 650 13px/1.2 system-ui !important; padding: 10px 14px !important;
+  }
+
   .leaflet-control-attribution {
     background: rgba(8,12,22,.7) !important; color: #9aa8bd !important; font-size: 10px !important;
   }
@@ -251,7 +336,7 @@
     <div class="brand">
       <div>
         <h1>Smiths Comanche Fall Trip 2026</h1>
-        <div class="sub">N7236P · ForeFlight exact tracks</div>
+        <div class="sub">Our family airplane trip · N7236P</div>
       </div>
       <div class="tail">N7236P</div>
     </div>
@@ -261,7 +346,8 @@
     </div>
     <div class="view-btns">
       <button type="button" id="btn-full">Full trip</button>
-      <button type="button" id="btn-niagara">Niagara laps</button>
+      <button type="button" id="btn-niagara">Niagara Falls</button>
+      <button type="button" id="btn-legs">Flight legs</button>
       <button type="button" id="btn-collapse" title="Hide panel">Hide</button>
     </div>
     <div id="legend"></div>
@@ -273,13 +359,13 @@
 <div class="mobile-bar" id="mobile-bar">
   <div class="glass">
     <div class="m-row">
-      <div class="m-title">Smiths Comanche Fall Trip 2026<small>N7236P · ForeFlight · satellite</small></div>
+      <div class="m-title">Smiths Comanche Fall Trip 2026<small>Tap a photo · N7236P</small></div>
       <div class="m-time" id="m-total-time">23h 56m</div>
     </div>
     <div class="m-actions" style="margin-top:7px">
       <button type="button" class="chip-btn" id="m-btn-full">Full trip</button>
-      <button type="button" class="chip-btn" id="m-btn-niagara">Niagara</button>
-      <button type="button" class="chip-btn" id="m-btn-legs">Legs</button>
+      <button type="button" class="chip-btn" id="m-btn-niagara">Niagara Falls</button>
+      <button type="button" class="chip-btn" id="m-btn-legs">Flight legs</button>
     </div>
   </div>
 </div>
@@ -296,10 +382,17 @@
 
 <div id="map"></div>
 
+<div class="tap-hint" id="tap-hint">Tap a photo</div>
+
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo">
   <div class="lightbox-inner">
     <button type="button" class="lb-close" id="lb-close" aria-label="Close">×</button>
+    <button type="button" class="lb-nav lb-prev" id="lb-prev" aria-label="Previous">‹</button>
+    <button type="button" class="lb-nav lb-next" id="lb-next" aria-label="Next">›</button>
     <img id="lb-img" alt=""/>
+    <video id="lb-video" controls playsinline style="display:none"></video>
+    <div class="lb-count" id="lb-count"></div>
+    <div class="lb-dots" id="lb-dots"></div>
     <div class="lb-cap" id="lb-cap"></div>
   </div>
 </div>
@@ -475,6 +568,11 @@ function setLegsOpen(open) {
 
 document.getElementById('btn-full').addEventListener('click', () => fitFullTrip(true));
 document.getElementById('btn-niagara').addEventListener('click', fitNiagara);
+document.getElementById('btn-legs').addEventListener('click', () => {
+  document.body.classList.toggle('legs-open-desktop');
+  const b = document.getElementById('btn-legs');
+  if (b) b.classList.toggle('active', document.body.classList.contains('legs-open-desktop'));
+});
 document.getElementById('btn-collapse').addEventListener('click', () => {
   document.body.classList.add('rail-collapsed');
   setTimeout(() => fitFullTrip(true), 50);
@@ -493,39 +591,88 @@ document.getElementById('sheet-backdrop').addEventListener('click', () => setLeg
 const photoPins = [
   {
     lat: 40.2734, lon: -86.5622,
-    title: "Grandma's (Indiana)",
+    title: "Grandma's in Indiana",
     thumb: "photos/01-grandma-indiana.jpg",
-    full: "photos/large/01-grandma-indiana.jpg",
-    slot: "tl"
+    slot: "tl",
+    media: [
+      { type: "image", thumb: "photos/01-grandma-indiana.jpg", full: "photos/large/01-grandma-indiana.jpg", caption: "Grandma's in Indiana" },
+      { type: "image", thumb: "photos/05-grandma-farm-frankfort.jpg", full: "photos/large/05-grandma-farm-frankfort.jpg", caption: "Grandma's farm" }
+    ]
   },
   {
-    lat: 40.2734, lon: -86.5622,
-    title: "Grandma's farm · Frankfort, IN",
-    thumb: "photos/05-grandma-farm-frankfort.jpg",
-    full: "photos/large/05-grandma-farm-frankfort.jpg",
-    slot: "tl2",
-    dx: 38, dy: 34
+    lat: 41.4687, lon: -82.2093,
+    title: "Lorain Lighthouse",
+    thumb: "photos/09-lorain-lighthouse.jpg",
+    slot: "tm",
+    media: [
+      { type: "video", thumb: "photos/09-lorain-lighthouse.jpg", video: "videos/lorain-lighthouse.mp4", poster: "photos/09-lorain-lighthouse.jpg", caption: "Lorain Lighthouse · Lake Erie" }
+    ]
   },
   {
     lat: 43.079, lon: -79.075,
     title: "Niagara Falls",
     thumb: "photos/02-niagara-falls.jpg",
-    full: "photos/large/02-niagara-falls.jpg",
-    slot: "tm"
+    slot: "tm",
+    media: [
+      { type: "video", thumb: "photos/02-niagara-falls.jpg", video: "videos/niagara-falls.mp4", poster: "photos/02-niagara-falls.jpg", caption: "Niagara Falls" }
+    ]
   },
   {
     lat: 40.70, lon: -74.02,
     title: "New York City",
     thumb: "photos/03-nyc-skyline.jpg",
-    full: "photos/large/03-nyc-skyline.jpg",
-    slot: "bm"
+    slot: "bm",
+    media: [
+      { type: "image", thumb: "photos/03-nyc-skyline.jpg", full: "photos/large/03-nyc-skyline.jpg", caption: "New York City" }
+    ]
+  },
+  {
+    lat: 42.7172, lon: -71.1234,
+    title: "Frost in Lawrence",
+    thumb: "photos/06-klwm-frost.jpg",
+    slot: "br",
+    media: [
+      { type: "image", thumb: "photos/06-klwm-frost.jpg", full: "photos/large/06-klwm-frost.jpg", caption: "Frost at Lawrence Municipal" }
+    ]
   },
   {
     lat: 42.5818559, lon: -71.2799915,
     title: "Brajak home",
     thumb: "photos/04-brajak-billerica.jpg",
-    full: "photos/large/04-brajak-billerica.jpg",
-    slot: "br"
+    slot: "br",
+    media: [
+      { type: "image", thumb: "photos/04-brajak-billerica.jpg", full: "photos/large/04-brajak-billerica.jpg", caption: "Brajak home" }
+    ]
+  },
+  {
+    lat: 42.355, lon: -71.066,
+    title: "Boston",
+    thumb: "photos/07-boston-park.jpg",
+    slot: "bm",
+    media: [
+      { type: "image", thumb: "photos/07-boston-park.jpg", full: "photos/large/07-boston-park.jpg", caption: "Boston" }
+    ]
+  },
+  {
+    lat: 42.2365, lon: -72.2787,
+    title: "Tree House Brewing",
+    thumb: "photos/08-treehouse-brewing.jpg",
+    slot: "bm",
+    media: [
+      { type: "image", thumb: "photos/08-treehouse-brewing.jpg", full: "photos/large/08-treehouse-brewing.jpg", caption: "Tree House Brewing · Massachusetts" }
+    ]
+  },
+  {
+    lat: 35.1876, lon: -83.3897,
+    title: "North Carolina",
+    thumb: "photos/10-nc-creek.jpg",
+    slot: "tl",
+    media: [
+      { type: "image", thumb: "photos/10-nc-creek.jpg", full: "photos/large/10-nc-creek.jpg", caption: "North Carolina · creek" },
+      { type: "image", thumb: "photos/11-nc-cockpit-road.jpg", full: "photos/large/11-nc-cockpit-road.jpg", caption: "North Carolina · from the plane" },
+      { type: "image", thumb: "photos/12-nc-cockpit.jpg", full: "photos/large/12-nc-cockpit.jpg", caption: "North Carolina · cockpit" },
+      { type: "image", thumb: "photos/13-nc-fish.jpg", full: "photos/large/13-nc-fish.jpg", caption: "North Carolina · catch of the day" }
+    ]
   }
 ];
 
@@ -558,11 +705,12 @@ function placeCardNearPin(size, pin, pt, occupied) {
   const maxX = size.x - railWidth() - cardW - pad;
   const maxY = size.y - cardH - pad;
   const prefs = {
-    tl: [-220, -10],
-    tl2: [-220, 170],
-    tm: [-220, 50],
+    tl: [-200, -10],
+    tl2: [-200, 175],
+    tm: [-210, 40],
     bm: [-100, 80],
-    br: [28, 80]
+    br: [28, 70],
+    bl: [-210, 90]
   };
   const [dx, dy] = prefs[pin.slot] || [-180, -20];
   let left = pt.x + dx;
@@ -610,8 +758,14 @@ function drawPhotoPins() {
         const p0 = map.latLngToContainerPoint(latlng);
         pinLL = map.containerPointToLatLng([p0.x + (pin.dx || 0), p0.y + (pin.dy || 0)]);
       }
-      const html = '<div class="photo-pin" data-photo-idx="'+i+'" title="'+pin.title.replace(/"/g,'')+'">'
-        + '<img src="'+pin.thumb+'" alt="'+pin.title.replace(/"/g,'')+'"/></div>';
+      const nMedia = (pin.media && pin.media.length) || 1;
+      const isVid = pin.media && pin.media[0] && pin.media[0].type === 'video';
+      const html = '<div class="photo-pin'+(nMedia>1?' photo-pin-multi':'')+'" data-photo-idx="'+i+'"'
+        + (nMedia>1 ? ' data-count="'+nMedia+'"' : '')
+        + ' title="'+pin.title.replace(/"/g,'')+'">'
+        + '<img src="'+pin.thumb+'" alt="'+pin.title.replace(/"/g,'')+'"/>'
+        + (isVid ? '<div class="badge-play"><span>▶</span></div>' : '')
+        + '</div>';
       const icon = L.divIcon({
         className: 'photo-pin-icon',
         html: html,
@@ -637,14 +791,17 @@ function drawPhotoPins() {
     }
     L.circleMarker(pinLL, {
       radius: 7, color: '#0a101c', weight: 2, fillColor: '#d4af6a', fillOpacity: 1
-    }).bindPopup('<b>'+pin.title+'</b><br><span style="color:#a8b4c8">Click card to expand</span>').addTo(photoLayer);
+    }).bindPopup('<b>'+pin.title+'</b><br><span style="color:#a8b4c8">Tap the photo</span>').addTo(photoLayer);
 
     const pt = map.latLngToContainerPoint(pinLL);
     const slot = placeCardNearPin(size, pin, pt, occupied);
-    const html = '<div class="photo-card" data-photo-idx="'+i+'" role="button" tabindex="0" title="Click to expand">'
+    const nMedia = (pin.media && pin.media.length) || 1;
+    const isVid = pin.media && pin.media[0] && pin.media[0].type === 'video';
+    const html = '<div class="photo-card" data-photo-idx="'+i+'" role="button" tabindex="0" title="Tap to open">'
       + '<img src="'+pin.thumb+'" alt="'+pin.title.replace(/"/g,'')+'"/>'
+      + (isVid ? '<div class="badge-play"><span>▶</span></div>' : '')
       + '<div class="cap">'+pin.title+'</div>'
-      + '<div class="hint">Click to expand</div></div>';
+      + '<div class="hint">'+(nMedia>1 ? (nMedia+' photos · tap') : (isVid ? 'Tap to play' : 'Tap to open'))+'</div></div>';
     const icon = L.divIcon({
       className: 'photo-card-icon',
       html: html,
@@ -700,18 +857,66 @@ function drawPhotoPins() {
 
 const lb = document.getElementById('lightbox');
 const lbImg = document.getElementById('lb-img');
+const lbVideo = document.getElementById('lb-video');
 const lbCap = document.getElementById('lb-cap');
+const lbDots = document.getElementById('lb-dots');
+const lbCount = document.getElementById('lb-count');
+const lbPrev = document.getElementById('lb-prev');
+const lbNext = document.getElementById('lb-next');
 let lbOpen = false;
+let lbPinIdx = -1;
+let lbMediaIdx = 0;
+let touchX = null;
 
-function openLightbox(idx) {
+function pinMedia(pin) {
+  if (pin.media && pin.media.length) return pin.media;
+  return [{ type: 'image', full: pin.full || pin.thumb, thumb: pin.thumb, caption: pin.title }];
+}
+
+function showMediaItem(pin, idx) {
+  const items = pinMedia(pin);
+  lbMediaIdx = (idx + items.length) % items.length;
+  const item = items[lbMediaIdx];
+  const multi = items.length > 1;
+
+  lbPrev.classList.toggle('show', multi);
+  lbNext.classList.toggle('show', multi);
+  lbCount.classList.toggle('show', multi);
+  lbDots.classList.toggle('show', multi);
+  lbCount.textContent = multi ? ((lbMediaIdx + 1) + ' / ' + items.length) : '';
+  lbDots.innerHTML = multi ? items.map((_, k) => '<span class="'+(k===lbMediaIdx?'on':'')+'"></span>').join('') : '';
+
+  // stop any playing video first
+  try { lbVideo.pause(); } catch (e) {}
+  lbVideo.removeAttribute('src');
+  lbVideo.load();
+
+  if (item.type === 'video') {
+    lbImg.style.display = 'none';
+    lbImg.removeAttribute('src');
+    lbVideo.style.display = 'block';
+    lbVideo.poster = item.poster || item.thumb || '';
+    lbVideo.src = item.video;
+    lbVideo.play().catch(() => {});
+  } else {
+    lbVideo.style.display = 'none';
+    lbImg.style.display = 'block';
+    lbImg.src = item.full || item.thumb;
+    lbImg.alt = item.caption || pin.title;
+  }
+  lbCap.textContent = item.caption || pin.title;
+}
+
+function openLightbox(idx, startAt) {
   const pin = photoPins[idx];
   if (!pin) return;
   setLegsOpen(false);
-  lbImg.src = pin.full || pin.thumb;
-  lbImg.alt = pin.title;
-  lbCap.textContent = pin.title;
+  lbPinIdx = idx;
+  showMediaItem(pin, startAt || 0);
   lb.classList.add('open');
   lbOpen = true;
+  const hint = document.getElementById('tap-hint');
+  if (hint) hint.classList.add('hide');
   map.dragging.disable();
   map.scrollWheelZoom.disable();
   map.doubleClickZoom.disable();
@@ -721,6 +926,10 @@ function openLightbox(idx) {
 function closeLightbox() {
   lb.classList.remove('open');
   lbOpen = false;
+  lbPinIdx = -1;
+  try { lbVideo.pause(); } catch (e) {}
+  lbVideo.removeAttribute('src');
+  lbVideo.load();
   lbImg.removeAttribute('src');
   map.dragging.enable();
   map.scrollWheelZoom.enable();
@@ -728,12 +937,29 @@ function closeLightbox() {
   map.boxZoom.enable();
   map.keyboard.enable();
 }
+function lbStep(dir) {
+  if (lbPinIdx < 0) return;
+  showMediaItem(photoPins[lbPinIdx], lbMediaIdx + dir);
+}
+lbPrev.addEventListener('click', (e) => { e.stopPropagation(); lbStep(-1); });
+lbNext.addEventListener('click', (e) => { e.stopPropagation(); lbStep(1); });
+lb.addEventListener('touchstart', (e) => { if (e.changedTouches[0]) touchX = e.changedTouches[0].clientX; }, { passive: true });
+lb.addEventListener('touchend', (e) => {
+  if (touchX == null || !e.changedTouches[0]) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  touchX = null;
+  if (Math.abs(dx) < 40) return;
+  lbStep(dx < 0 ? 1 : -1);
+}, { passive: true });
+
 document.getElementById('lb-close').addEventListener('click', (e) => { e.stopPropagation(); closeLightbox(); });
 lb.addEventListener('click', (e) => { if (e.target === lb) closeLightbox(); });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     if (lbOpen) closeLightbox();
     else setLegsOpen(false);
+  } else if (lbOpen && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+    lbStep(e.key === 'ArrowRight' ? 1 : -1);
   }
 });
 
@@ -746,6 +972,11 @@ function onViewportChange() {
     map.invalidateSize();
     fitFullTrip(false);
     drawPhotoPins();
+const tapHint = document.getElementById('tap-hint');
+if (tapHint) {
+  setTimeout(() => tapHint.classList.add('hide'), 4500);
+  setTimeout(() => { tapHint.style.display = 'none'; }, 6000);
+}
   }, 120);
 }
 window.addEventListener('resize', onViewportChange);
@@ -759,6 +990,11 @@ function initialFit() {
   map.invalidateSize();
   fitFullTrip(false);
   drawPhotoPins();
+const tapHint = document.getElementById('tap-hint');
+if (tapHint) {
+  setTimeout(() => tapHint.classList.add('hide'), 4500);
+  setTimeout(() => { tapHint.style.display = 'none'; }, 6000);
+}
 }
 initialFit();
 requestAnimationFrame(() => {
