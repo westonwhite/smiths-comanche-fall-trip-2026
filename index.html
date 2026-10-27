@@ -114,8 +114,8 @@
   }
   .photo-card:hover { transform: translateY(-2px) scale(1.02); border-color: var(--gold); }
   .photo-card img {
-    display: block; width: 100%; height: 132px; object-fit: cover; object-position: center 65%;
-    border-radius: 8px; background: #111;
+    display: block; width: 100%; height: 132px; object-fit: cover; object-position: center;
+    border-radius: 8px; background: #d6c4a0;
   }
   .photo-card .cap {
     font: 650 12px/1.3 system-ui; margin-top: 5px; color: var(--gold-soft); padding: 0 2px 1px;
@@ -128,12 +128,24 @@
 
   /* Mobile photo pin chips */
   .photo-pin {
-    width: 44px; height: 44px; border-radius: 50%; overflow: hidden; cursor: pointer;
+    width: 52px; height: 52px; border-radius: 12px; overflow: hidden; cursor: pointer;
     border: 2.5px solid var(--gold); box-shadow: 0 3px 12px rgba(0,0,0,.55);
-    background: #111; pointer-events: auto;
+    background: #d6c4a0; pointer-events: auto; position: relative;
   }
-  .photo-pin img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-pin img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center;
+    display: block; background: #d6c4a0;
+  }
   .photo-pin-icon { background: transparent !important; border: none !important; }
+  .leaflet-container .photo-pin-icon,
+  .leaflet-container .photo-card-icon { background: transparent !important; border: none !important; }
+  .leaflet-container .photo-pin img,
+  .leaflet-container .photo-card img {
+    max-width: none !important; max-height: none !important;
+    width: 100% !important; height: 100% !important;
+    object-fit: cover !important; display: block !important;
+  }
+  .leaflet-container .photo-card img { height: 132px !important; }
 
   /* Lightbox */
   .lightbox {
@@ -602,6 +614,7 @@ const photoPins = [
     lat: 40.2734, lon: -86.5622,
     title: "Grandma's in Indiana",
     thumb: "photos/01-grandma-indiana.jpg",
+    pin: "photos/pins/01-grandma-indiana.jpg",
     slot: "tl",
     media: [
       { type: "image", thumb: "photos/01-grandma-indiana.jpg", full: "photos/large/01-grandma-indiana.jpg", caption: "Grandma's in Indiana" },
@@ -609,48 +622,76 @@ const photoPins = [
     ]
   },
   {
-    lat: 41.4687, lon: -82.2093,
+    lat: 41.464, lon: -82.182,
     title: "Lorain Lighthouse",
     thumb: "photos/09-lorain-lighthouse.jpg",
+    pin: "photos/pins/09-lorain-lighthouse.jpg",
     slot: "tm",
     media: [
-      { type: "video", thumb: "photos/09-lorain-lighthouse.jpg", video: "videos/lorain-lighthouse.mp4", poster: "photos/09-lorain-lighthouse.jpg", caption: "Lorain Lighthouse · Lake Erie" }
+      { type: "video", thumb: "photos/09-lorain-lighthouse.jpg", video: "videos/lorain-lighthouse.mp4", poster: "photos/09-lorain-lighthouse.jpg", caption: "Lorain Lighthouse" }
     ]
   },
   {
-    lat: 43.079, lon: -79.075,
+    lat: 43.0861, lon: -79.0759,
     title: "Niagara Falls",
     thumb: "photos/02-niagara-falls.jpg",
-    slot: "tm",
+    pin: "photos/pins/02-niagara-falls.jpg",
+    slot: "tl",
     media: [
       { type: "video", thumb: "photos/02-niagara-falls.jpg", video: "videos/niagara-falls.mp4", poster: "photos/02-niagara-falls.jpg", caption: "Niagara Falls" }
     ]
   },
   {
-    lat: 40.70, lon: -74.02,
+    lat: 40.758, lon: -73.9855,
     title: "New York City",
     thumb: "photos/03-nyc-skyline.jpg",
-    slot: "bm",
+    pin: "photos/pins/03-nyc-skyline.jpg",
+    slot: "br",
     media: [
       { type: "image", thumb: "photos/03-nyc-skyline.jpg", full: "photos/large/03-nyc-skyline.jpg", caption: "New York City" }
     ]
   },
   {
-    lat: 42.7172, lon: -71.1234,
+    lat: 42.717, lon: -71.1235,
     title: "Frost in Lawrence",
     thumb: "photos/06-klwm-frost.jpg",
-    slot: "br",
+    pin: "photos/pins/06-klwm-frost.jpg",
+    slot: "tl",
     media: [
-      { type: "image", thumb: "photos/06-klwm-frost.jpg", full: "photos/large/06-klwm-frost.jpg", caption: "Frost at Lawrence Municipal" }
+      { type: "image", thumb: "photos/06-klwm-frost.jpg", full: "photos/large/06-klwm-frost.jpg", caption: "Frost in Lawrence" }
     ]
   },
   {
-    lat: 42.5818559, lon: -71.2799915,
+    lat: 42.6470, lon: -71.0888,
+    title: "Apple picking",
+    thumb: "photos/15-apple-picking-1.jpg",
+    pin: "photos/pins/15-apple-picking-1.jpg",
+    slot: "tm",
+    media: [
+      { type: "image", thumb: "photos/15-apple-picking-1.jpg", full: "photos/large/15-apple-picking-1.jpg", caption: "Apple picking" },
+      { type: "image", thumb: "photos/15-apple-picking-2.jpg", full: "photos/large/15-apple-picking-2.jpg", caption: "Apple picking" },
+      { type: "image", thumb: "photos/15-apple-picking-3.jpg", full: "photos/large/15-apple-picking-3.jpg", caption: "Goats" },
+      { type: "image", thumb: "photos/15-apple-picking-4.jpg", full: "photos/large/15-apple-picking-4.jpg", caption: "Apple picking" }
+    ]
+  },
+  {
+    lat: 42.5584, lon: -71.2689,
     title: "Brajak home",
     thumb: "photos/04-brajak-billerica.jpg",
-    slot: "br",
+    pin: "photos/pins/04-brajak-billerica.jpg",
+    slot: "bl",
     media: [
       { type: "image", thumb: "photos/04-brajak-billerica.jpg", full: "photos/large/04-brajak-billerica.jpg", caption: "Brajak home" }
+    ]
+  },
+  {
+    lat: 42.5763, lon: -71.2837,
+    title: "Dinner · Massachusetts",
+    thumb: "photos/16-dinner-massachusetts.jpg",
+    pin: "photos/pins/16-dinner-massachusetts.jpg",
+    slot: "br",
+    media: [
+      { type: "image", thumb: "photos/16-dinner-massachusetts.jpg", full: "photos/large/16-dinner-massachusetts.jpg", caption: "Dinner · Massachusetts" }
     ]
   },
   {
@@ -658,6 +699,7 @@ const photoPins = [
     lat: 42.355, lon: -71.066,
     title: "Downtown Boston",
     thumb: "photos/07-boston-park.jpg",
+    pin: "photos/pins/07-boston-park.jpg",
     slot: "bm",
     media: [
       { type: "image", thumb: "photos/07-boston-park.jpg", full: "photos/large/07-boston-park.jpg", caption: "Downtown Boston · park" },
@@ -668,16 +710,18 @@ const photoPins = [
     lat: 42.2365, lon: -72.2787,
     title: "Tree House Brewing",
     thumb: "photos/08-treehouse-brewing.jpg",
-    slot: "bm",
+    pin: "photos/pins/08-treehouse-brewing.jpg",
+    slot: "bl",
     media: [
-      { type: "image", thumb: "photos/08-treehouse-brewing.jpg", full: "photos/large/08-treehouse-brewing.jpg", caption: "Tree House Brewing · Massachusetts" }
+      { type: "image", thumb: "photos/08-treehouse-brewing.jpg", full: "photos/large/08-treehouse-brewing.jpg", caption: "Tree House Brewing" }
     ]
   },
   {
-    lat: 35.1876, lon: -83.3897,
+    lat: 35.2223, lon: -83.4199,
     title: "North Carolina",
     thumb: "photos/10-nc-creek.jpg",
-    slot: "tl",
+    pin: "photos/pins/10-nc-creek.jpg",
+    slot: "br",
     media: [
       { type: "image", thumb: "photos/10-nc-creek.jpg", full: "photos/large/10-nc-creek.jpg", caption: "North Carolina · creek" },
       { type: "image", thumb: "photos/11-nc-cockpit-road.jpg", full: "photos/large/11-nc-cockpit-road.jpg", caption: "North Carolina · from the plane" },
@@ -771,17 +815,19 @@ function drawPhotoPins() {
       }
       const nMedia = (pin.media && pin.media.length) || 1;
       const isVid = pin.media && pin.media[0] && pin.media[0].type === 'video';
+      const thumbSrc = pin.pin || pin.thumb;
       const html = '<div class="photo-pin'+(nMedia>1?' photo-pin-multi':'')+'" data-photo-idx="'+i+'"'
         + (nMedia>1 ? ' data-count="'+nMedia+'"' : '')
         + ' title="'+pin.title.replace(/"/g,'')+'">'
-        + '<img src="'+pin.thumb+'" alt="'+pin.title.replace(/"/g,'')+'"/>'
+        + '<img src="'+thumbSrc+'" width="52" height="52" decoding="async" loading="eager" alt="'+pin.title.replace(/"/g,'')+'"'
+        + ' onerror="this.onerror=null;this.src=\''+(pin.thumb||'')+'\';"/>'
         + (isVid ? '<div class="badge-play"><span>▶</span></div>' : '')
         + '</div>';
       const icon = L.divIcon({
         className: 'photo-pin-icon',
         html: html,
-        iconSize: [44, 44],
-        iconAnchor: [22, 22]
+        iconSize: [52, 52],
+        iconAnchor: [26, 26]
       });
       const marker = L.marker(pinLL, { icon: icon, interactive: true, keyboard: true }).addTo(photoLayer);
       marker.on('click', () => openLightbox(i));
@@ -809,7 +855,7 @@ function drawPhotoPins() {
     const nMedia = (pin.media && pin.media.length) || 1;
     const isVid = pin.media && pin.media[0] && pin.media[0].type === 'video';
     const html = '<div class="photo-card" data-photo-idx="'+i+'" role="button" tabindex="0" title="Tap to open">'
-      + '<img src="'+pin.thumb+'" alt="'+pin.title.replace(/"/g,'')+'"/>'
+      + '<img src=\"'+(pin.pin||pin.thumb)+'\" width=\"148\" height=\"148\" decoding=\"async\" loading=\"eager\" alt=\"'+pin.title.replace(/\"/g,'')+'\" onerror=\"this.onerror=null;this.src=\''+pin.thumb+'\';\"/>'
       + (isVid ? '<div class="badge-play"><span>▶</span></div>' : '')
       + '<div class="cap">'+pin.title+'</div>'
       + '<div class="hint">'+(nMedia>1 ? (nMedia+' photos · tap') : (isVid ? 'Tap to play' : 'Tap to open'))+'</div></div>';
