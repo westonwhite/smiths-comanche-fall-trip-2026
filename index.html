@@ -222,6 +222,45 @@
     text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,.4);
   }
 
+  /* Stay dates above pin photos */
+  .pin-dates {
+    display: block;
+    width: max-content;
+    max-width: 120px;
+    margin: 0 auto 4px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(10, 16, 28, 0.92);
+    border: 1px solid rgba(212, 175, 106, 0.55);
+    color: var(--gold-soft);
+    font: 700 10px/1.2 system-ui, -apple-system, sans-serif;
+    letter-spacing: 0.02em;
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,.45);
+    pointer-events: none;
+  }
+  .photo-pin-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 72px;
+  }
+  .photo-pin-wrap .photo-pin {
+    flex: 0 0 auto;
+  }
+  .photo-card .pin-dates {
+    max-width: none;
+    margin: 0 0 6px;
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+  .photo-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
   .lightbox-inner { max-width: min(1600px, 96vw); width: 100%; }
   .lightbox img, .lightbox video {
     max-width: 100%; max-height: calc(92vh - 88px); border-radius: 12px;
@@ -707,6 +746,7 @@ const photoPins = [
   {
     lat: 40.2734, lon: -86.5622,
     title: "Grandma's in Indiana",
+    dates: "Oct 17–20",
     thumb: "photos/01-grandma-indiana.jpg",
     pin: "photos/pins/01-grandma-indiana.jpg",
     slot: "tl",
@@ -718,6 +758,7 @@ const photoPins = [
   {
     lat: 41.4687, lon: -82.2093,
     title: "Lorain Lighthouse",
+    dates: "Oct 20",
     thumb: "photos/09-lorain-lighthouse.jpg",
     pin: "photos/pins/09-lorain-lighthouse.jpg",
     slot: "tm",
@@ -728,6 +769,7 @@ const photoPins = [
   {
     lat: 43.0861, lon: -79.0759,
     title: "Niagara Falls",
+    dates: "Oct 20",
     thumb: "photos/02-niagara-falls.jpg",
     pin: "photos/pins/02-niagara-falls.jpg",
     slot: "tl",
@@ -738,6 +780,7 @@ const photoPins = [
   {
     lat: 40.758, lon: -73.9855,
     title: "New York City",
+    dates: "Oct 24",
     thumb: "photos/03-nyc-skyline.jpg",
     pin: "photos/pins/03-nyc-skyline.jpg",
     slot: "br",
@@ -748,6 +791,7 @@ const photoPins = [
   {
     lat: 42.55, lon: -71.25,
     title: "Massachusetts",
+    dates: "Oct 20–24",
     thumb: "photos/07-boston-park.jpg",
     pin: "photos/pins/07-boston-park.jpg",
     slot: "bm",
@@ -767,6 +811,7 @@ const photoPins = [
   {
     lat: 35.185, lon: -83.38,
     title: "North Carolina",
+    dates: "Oct 24–26",
     thumb: "photos/17-franklin-lobster.jpg",
     pin: "photos/pins/17-franklin-lobster.jpg",
     slot: "br",
@@ -804,7 +849,7 @@ function railWidth() {
 }
 
 function placeCardNearPin(size, pin, pt, occupied) {
-  const cardW = 198, cardH = 168, pad = 12;
+  const cardW = 198, cardH = 190, pad = 12;
   const topChrome = isMobile() ? 96 : pad;
   const maxX = size.x - railWidth() - cardW - pad;
   const maxY = size.y - cardH - pad;
@@ -865,24 +910,28 @@ function drawPhotoPins() {
       const nMedia = (pin.media && pin.media.length) || 1;
       const isVid = pin.media && pin.media[0] && pin.media[0].type === 'video';
       const thumbSrc = pin.pin || pin.thumb;
-      const html = '<div class="photo-pin'+(nMedia>1?' photo-pin-multi':'')+'" data-photo-idx="'+i+'"'
+      const datesHtml = pin.dates ? '<div class="pin-dates">'+pin.dates+'</div>' : '';
+      const html = '<div class="photo-pin-wrap" data-photo-idx="'+i+'" title="'+(pin.dates ? pin.dates+' · ' : '')+pin.title.replace(/"/g,'')+'">'
+        + datesHtml
+        + '<div class="photo-pin'+(nMedia>1?' photo-pin-multi':'')+'"'
         + (nMedia>1 ? ' data-count="'+nMedia+'"' : '')
-        + ' title="'+pin.title.replace(/"/g,'')+'">'
+        + '>'
         + '<img src="'+thumbSrc+'" width="52" height="52" decoding="async" loading="eager" alt="'+pin.title.replace(/"/g,'')+'"'
         + ' onerror="this.onerror=null;this.src=\''+(pin.thumb||'')+'\';"/>'
         + (isVid ? '<div class="badge-play"><span>▶</span></div>' : '')
-        + '</div>';
+        + '</div></div>';
+      const pinH = pin.dates ? 74 : 52;
       const icon = L.divIcon({
         className: 'photo-pin-icon',
         html: html,
-        iconSize: [52, 52],
-        iconAnchor: [26, 26]
+        iconSize: [72, pinH],
+        iconAnchor: [36, pin.dates ? (pinH - 26) : 26]
       });
       const marker = L.marker(pinLL, { icon: icon, interactive: true, keyboard: true }).addTo(photoLayer);
       marker.on('click', () => openLightbox(i));
       setTimeout(() => {
         const el = marker.getElement();
-        const chip = el && el.querySelector('.photo-pin');
+        const chip = el && (el.querySelector('.photo-pin-wrap') || el.querySelector('.photo-pin'));
         if (chip) chip.addEventListener('click', (ev) => {
           ev.preventDefault(); ev.stopPropagation(); openLightbox(i);
         });
@@ -903,7 +952,9 @@ function drawPhotoPins() {
     const slot = placeCardNearPin(size, pin, pt, occupied);
     const nMedia = (pin.media && pin.media.length) || 1;
     const isVid = pin.media && pin.media[0] && pin.media[0].type === 'video';
-    const html = '<div class="photo-card" data-photo-idx="'+i+'" role="button" tabindex="0" title="Tap to open">'
+    const datesHtml = pin.dates ? '<div class="pin-dates">'+pin.dates+'</div>' : '';
+    const html = '<div class="photo-card" data-photo-idx="'+i+'" role="button" tabindex="0" title="'+(pin.dates ? pin.dates+' · ' : '')+'Tap to open">'
+      + datesHtml
       + '<img src=\"'+(pin.pin||pin.thumb)+'\" width=\"148\" height=\"148\" decoding=\"async\" loading=\"eager\" alt=\"'+pin.title.replace(/\"/g,'')+'\" onerror=\"this.onerror=null;this.src=\''+pin.thumb+'\';\"/>'
       + (isVid ? '<div class="badge-play"><span>▶</span></div>' : '')
       + '<div class="cap">'+pin.title+'</div>'
