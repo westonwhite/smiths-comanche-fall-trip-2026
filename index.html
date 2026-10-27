@@ -404,7 +404,7 @@
     <button type="button" class="lb-nav lb-prev" id="lb-prev" aria-label="Previous">‹</button>
     <button type="button" class="lb-nav lb-next" id="lb-next" aria-label="Next">›</button>
     <img id="lb-img" alt=""/>
-    <video id="lb-video" controls playsinline style="display:none"></video>
+    <video id="lb-video" controls playsinline webkit-playsinline preload="metadata" style="display:none"></video>
     <div class="lb-count" id="lb-count"></div>
     <div class="lb-dots" id="lb-dots"></div>
     <div class="lb-cap" id="lb-cap"></div>
@@ -572,7 +572,20 @@ function fitNiagara() {
 
 function fitBoston() {
   map.invalidateSize();
-  map.flyTo([42.355, -71.066], isMobile() ? 12 : 13, { duration: 1.1 });
+  // Massachusetts / New England photo cluster (KLWM → Tree House → Boston)
+  const maBounds = L.latLngBounds([
+    [42.717, -71.1235],  // KLWM frost
+    [42.6470, -71.0888], // apple picking
+    [42.5584, -71.2689], // Brajak
+    [42.5763, -71.2837], // dinner
+    [42.355, -71.066],   // Boston
+    [42.2365, -72.2787]  // Tree House
+  ]);
+  map.flyToBounds(maBounds, {
+    padding: isMobile() ? [48, 110] : [48, 48],
+    maxZoom: 10,
+    duration: 1.1
+  });
 }
 
 function setLegsOpen(open) {
@@ -622,7 +635,7 @@ const photoPins = [
     ]
   },
   {
-    lat: 41.464, lon: -82.182,
+    lat: 41.4687, lon: -82.2093,
     title: "Lorain Lighthouse",
     thumb: "photos/09-lorain-lighthouse.jpg",
     pin: "photos/pins/09-lorain-lighthouse.jpg",
@@ -652,67 +665,22 @@ const photoPins = [
     ]
   },
   {
-    lat: 42.717, lon: -71.1235,
-    title: "Frost in Lawrence",
-    thumb: "photos/06-klwm-frost.jpg",
-    pin: "photos/pins/06-klwm-frost.jpg",
-    slot: "tl",
-    media: [
-      { type: "image", thumb: "photos/06-klwm-frost.jpg", full: "photos/large/06-klwm-frost.jpg", caption: "Frost in Lawrence" }
-    ]
-  },
-  {
-    lat: 42.6470, lon: -71.0888,
-    title: "Apple picking",
-    thumb: "photos/15-apple-picking-1.jpg",
-    pin: "photos/pins/15-apple-picking-1.jpg",
-    slot: "tm",
-    media: [
-      { type: "image", thumb: "photos/15-apple-picking-1.jpg", full: "photos/large/15-apple-picking-1.jpg", caption: "Apple picking" },
-      { type: "image", thumb: "photos/15-apple-picking-2.jpg", full: "photos/large/15-apple-picking-2.jpg", caption: "Apple picking" },
-      { type: "image", thumb: "photos/15-apple-picking-3.jpg", full: "photos/large/15-apple-picking-3.jpg", caption: "Goats" },
-      { type: "image", thumb: "photos/15-apple-picking-4.jpg", full: "photos/large/15-apple-picking-4.jpg", caption: "Apple picking" }
-    ]
-  },
-  {
-    lat: 42.5584, lon: -71.2689,
-    title: "Brajak home",
-    thumb: "photos/04-brajak-billerica.jpg",
-    pin: "photos/pins/04-brajak-billerica.jpg",
-    slot: "bl",
-    media: [
-      { type: "image", thumb: "photos/04-brajak-billerica.jpg", full: "photos/large/04-brajak-billerica.jpg", caption: "Brajak home" }
-    ]
-  },
-  {
-    lat: 42.5763, lon: -71.2837,
-    title: "Dinner · Massachusetts",
-    thumb: "photos/16-dinner-massachusetts.jpg",
-    pin: "photos/pins/16-dinner-massachusetts.jpg",
-    slot: "br",
-    media: [
-      { type: "image", thumb: "photos/16-dinner-massachusetts.jpg", full: "photos/large/16-dinner-massachusetts.jpg", caption: "Dinner · Massachusetts" }
-    ]
-  },
-  {
-    // albumId: "boston" — more Downtown Boston shots can append to media[]
-    lat: 42.355, lon: -71.066,
-    title: "Downtown Boston",
+    // All Massachusetts / New England stills in one family-friendly reel
+    lat: 42.55, lon: -71.25,
+    title: "Massachusetts",
     thumb: "photos/07-boston-park.jpg",
     pin: "photos/pins/07-boston-park.jpg",
     slot: "bm",
     media: [
+      { type: "image", thumb: "photos/06-klwm-frost.jpg", full: "photos/large/06-klwm-frost.jpg", caption: "Frost in Lawrence" },
+      { type: "image", thumb: "photos/04-brajak-billerica.jpg", full: "photos/large/04-brajak-billerica.jpg", caption: "Brajak home" },
+      { type: "image", thumb: "photos/15-apple-picking-1.jpg", full: "photos/large/15-apple-picking-1.jpg", caption: "Apple picking" },
+      { type: "image", thumb: "photos/15-apple-picking-2.jpg", full: "photos/large/15-apple-picking-2.jpg", caption: "Apple picking" },
+      { type: "image", thumb: "photos/15-apple-picking-3.jpg", full: "photos/large/15-apple-picking-3.jpg", caption: "Goats" },
+      { type: "image", thumb: "photos/15-apple-picking-4.jpg", full: "photos/large/15-apple-picking-4.jpg", caption: "Apple picking" },
+      { type: "image", thumb: "photos/16-dinner-massachusetts.jpg", full: "photos/large/16-dinner-massachusetts.jpg", caption: "Dinner · Massachusetts" },
       { type: "image", thumb: "photos/07-boston-park.jpg", full: "photos/large/07-boston-park.jpg", caption: "Downtown Boston · park" },
-      { type: "image", thumb: "photos/14-boston-rooftop.jpg", full: "photos/large/14-boston-rooftop.jpg", caption: "Downtown Boston · rooftop" }
-    ]
-  },
-  {
-    lat: 42.2365, lon: -72.2787,
-    title: "Tree House Brewing",
-    thumb: "photos/08-treehouse-brewing.jpg",
-    pin: "photos/pins/08-treehouse-brewing.jpg",
-    slot: "bl",
-    media: [
+      { type: "image", thumb: "photos/14-boston-rooftop.jpg", full: "photos/large/14-boston-rooftop.jpg", caption: "Downtown Boston · rooftop" },
       { type: "image", thumb: "photos/08-treehouse-brewing.jpg", full: "photos/large/08-treehouse-brewing.jpg", caption: "Tree House Brewing" }
     ]
   },
@@ -952,9 +920,15 @@ function showMediaItem(pin, idx) {
     lbImg.style.display = 'none';
     lbImg.removeAttribute('src');
     lbVideo.style.display = 'block';
+    lbVideo.setAttribute('playsinline', '');
+    lbVideo.setAttribute('webkit-playsinline', '');
+    lbVideo.controls = true;
     lbVideo.poster = item.poster || item.thumb || '';
     lbVideo.src = item.video;
-    lbVideo.play().catch(() => {});
+    lbVideo.load();
+    const tryPlay = () => { lbVideo.play().catch(() => {}); };
+    lbVideo.addEventListener('loadeddata', tryPlay, { once: true });
+    tryPlay();
   } else {
     lbVideo.style.display = 'none';
     lbImg.style.display = 'block';
