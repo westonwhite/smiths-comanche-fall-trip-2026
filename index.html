@@ -210,14 +210,14 @@
     body.legs-open .sheet-backdrop { display: block; }
 
     .legs-sheet {
-      display: block; position: fixed; z-index: 1101;
+      display: none; position: fixed; z-index: 1101;
       left: 8px; right: 8px; bottom: max(8px, env(safe-area-inset-bottom));
-      max-height: 40vh; transform: translateY(110%);
-      transition: transform .22s ease; pointer-events: none;
+      max-height: 40vh; pointer-events: auto;
       border-radius: 14px; overflow: hidden;
+      background: rgba(10, 16, 28, 0.94);
     }
     body.legs-open .legs-sheet {
-      transform: translateY(0); pointer-events: auto;
+      display: flex; flex-direction: column;
     }
     .legs-sheet .sheet-head {
       display: flex; align-items: center; justify-content: space-between;
@@ -227,7 +227,7 @@
       font-size: 13px; color: var(--gold-soft);
     }
     .legs-sheet .sheet-body {
-      overflow: auto; max-height: calc(40vh - 44px); padding: 6px 10px 10px;
+      overflow: auto; flex: 1 1 auto; min-height: 0; padding: 6px 10px 10px;
       -webkit-overflow-scrolling: touch;
     }
     .legs-sheet #legend-mobile label { font-size: 12px; padding: 6px 2px; }
@@ -403,7 +403,7 @@ function chromePadding() {
     return {
       paddingTopLeft: [10, 92],
       paddingBottomRight: [10, 18],
-      maxZoom: 7.1
+      maxZoom: 7.4
     };
   }
   const railEl = document.getElementById('rail');
@@ -420,19 +420,24 @@ function fitFullTrip(animate) {
   if (!includeGroup.getLayers().length) return;
   map.invalidateSize();
   const pad = chromePadding();
-  const b = includeGroup.getBounds().pad(0.02);
+  let b = includeGroup.getBounds();
+  if (isMobile()) {
+    // Bias center west so empty Atlantic is cropped; keep all include tracks
+    const c = b.getCenter();
+    const westBias = (b.getEast() - b.getWest()) * 0.12;
+    b = L.latLngBounds(
+      [b.getSouth() - 0.3, b.getWest() - 0.4],
+      [b.getNorth() + 0.2, b.getEast() - westBias]
+    );
+  } else {
+    b = b.pad(0.02);
+  }
   map.fitBounds(b, {
     paddingTopLeft: pad.paddingTopLeft,
     paddingBottomRight: pad.paddingBottomRight,
     maxZoom: pad.maxZoom,
     animate: !!animate
   });
-  // On mobile portrait, nudge west + slight zoom so Atlantic doesn't dominate
-  if (isMobile()) {
-    const z = map.getZoom();
-    map.setZoom(Math.min(pad.maxZoom, z + 0.35), { animate: !!animate });
-    map.panBy([-28, 8], { animate: !!animate });
-  }
 }
 
 function niagaraBoundsFromTrack() {
@@ -736,7 +741,10 @@ initialFit();
 requestAnimationFrame(() => {
   initialFit();
   setTimeout(initialFit, 200);
-  setTimeout(initialFit, 600);
+  setTimeout(() => {
+    initialFit();
+    if (location.search.indexOf('legs=1') >= 0) setLegsOpen(true);
+  }, 700);
 });
 </script>
 </body>
