@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<title>N7236P · October 2026</title>
+<meta name="description" content="Smiths Comanche Fall Trip 2026 — N7236P ForeFlight track map"/>
+<title>Smiths Comanche Fall Trip 2026</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -41,7 +42,7 @@
     margin-bottom: 8px;
   }
   .brand h1 {
-    margin: 0; font-size: 15px; letter-spacing: .04em; font-weight: 700;
+    margin: 0; font-size: 13.5px; letter-spacing: .03em; font-weight: 700;
     color: var(--gold-soft); line-height: 1.25;
   }
   .brand .sub {
@@ -188,7 +189,7 @@
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
     }
     .m-title {
-      font: 700 13px/1.2 system-ui; color: var(--gold-soft); letter-spacing: .03em;
+      font: 700 12px/1.2 system-ui; color: var(--gold-soft); letter-spacing: .02em;
       min-width: 0;
     }
     .m-title small {
@@ -249,8 +250,8 @@
   <div class="glass panel">
     <div class="brand">
       <div>
-        <h1>N7236P · October 2026</h1>
-        <div class="sub">ForeFlight exact tracks</div>
+        <h1>Smiths Comanche Fall Trip 2026</h1>
+        <div class="sub">N7236P · ForeFlight exact tracks</div>
       </div>
       <div class="tail">N7236P</div>
     </div>
@@ -272,7 +273,7 @@
 <div class="mobile-bar" id="mobile-bar">
   <div class="glass">
     <div class="m-row">
-      <div class="m-title">N7236P · October 2026<small>ForeFlight · satellite</small></div>
+      <div class="m-title">Smiths Comanche Fall Trip 2026<small>N7236P · ForeFlight · satellite</small></div>
       <div class="m-time" id="m-total-time">23h 56m</div>
     </div>
     <div class="m-actions" style="margin-top:7px">
@@ -498,6 +499,14 @@ const photoPins = [
     slot: "tl"
   },
   {
+    lat: 40.2734, lon: -86.5622,
+    title: "Grandma's farm · Frankfort, IN",
+    thumb: "photos/05-grandma-farm-frankfort.jpg",
+    full: "photos/large/05-grandma-farm-frankfort.jpg",
+    slot: "tl2",
+    dx: 38, dy: 34
+  },
+  {
     lat: 43.079, lon: -79.075,
     title: "Niagara Falls",
     thumb: "photos/02-niagara-falls.jpg",
@@ -550,6 +559,7 @@ function placeCardNearPin(size, pin, pt, occupied) {
   const maxY = size.y - cardH - pad;
   const prefs = {
     tl: [-220, -10],
+    tl2: [-220, 170],
     tm: [-220, 50],
     bm: [-100, 80],
     br: [28, 80]
@@ -594,7 +604,12 @@ function drawPhotoPins() {
     const latlng = L.latLng(pin.lat, pin.lon);
 
     if (mobile) {
-      // Compact circular pin on the map — tap opens lightbox (no big cards)
+      // Compact circular pin — stack offset for co-located Indiana photos
+      let pinLL = latlng;
+      if (pin.dx || pin.dy) {
+        const p0 = map.latLngToContainerPoint(latlng);
+        pinLL = map.containerPointToLatLng([p0.x + (pin.dx || 0), p0.y + (pin.dy || 0)]);
+      }
       const html = '<div class="photo-pin" data-photo-idx="'+i+'" title="'+pin.title.replace(/"/g,'')+'">'
         + '<img src="'+pin.thumb+'" alt="'+pin.title.replace(/"/g,'')+'"/></div>';
       const icon = L.divIcon({
@@ -603,7 +618,7 @@ function drawPhotoPins() {
         iconSize: [44, 44],
         iconAnchor: [22, 22]
       });
-      const marker = L.marker(latlng, { icon: icon, interactive: true, keyboard: true }).addTo(photoLayer);
+      const marker = L.marker(pinLL, { icon: icon, interactive: true, keyboard: true }).addTo(photoLayer);
       marker.on('click', () => openLightbox(i));
       setTimeout(() => {
         const el = marker.getElement();
@@ -615,11 +630,16 @@ function drawPhotoPins() {
       return;
     }
 
-    L.circleMarker(latlng, {
+    let pinLL = latlng;
+    if (pin.dx || pin.dy) {
+      const p0 = map.latLngToContainerPoint(latlng);
+      pinLL = map.containerPointToLatLng([p0.x + (pin.dx || 0), p0.y + (pin.dy || 0)]);
+    }
+    L.circleMarker(pinLL, {
       radius: 7, color: '#0a101c', weight: 2, fillColor: '#d4af6a', fillOpacity: 1
     }).bindPopup('<b>'+pin.title+'</b><br><span style="color:#a8b4c8">Click card to expand</span>').addTo(photoLayer);
 
-    const pt = map.latLngToContainerPoint(latlng);
+    const pt = map.latLngToContainerPoint(pinLL);
     const slot = placeCardNearPin(size, pin, pt, occupied);
     const html = '<div class="photo-card" data-photo-idx="'+i+'" role="button" tabindex="0" title="Click to expand">'
       + '<img src="'+pin.thumb+'" alt="'+pin.title.replace(/"/g,'')+'"/>'
