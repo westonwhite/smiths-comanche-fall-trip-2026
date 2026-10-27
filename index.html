@@ -16,10 +16,11 @@
     background:#fff;cursor:pointer}
   .view-btns button:hover{background:#f0f0f0}
   .view-btns button:active{background:#e2e8f0}
-  .photo-card{background:rgba(255,255,255,.95);border-radius:8px;padding:6px;box-shadow:0 2px 10px rgba(0,0,0,.35);
-    border:1px solid rgba(0,0,0,.15);max-width:160px;pointer-events:auto}
-  .photo-card img{display:block;width:100%;max-height:120px;object-fit:cover;border-radius:4px}
-  .photo-card .cap{font:11px/1.25 system-ui;margin-top:4px;color:#222}
+  .photo-card{background:rgba(255,255,255,.95);border-radius:8px;padding:5px;box-shadow:0 2px 10px rgba(0,0,0,.4);
+    border:1px solid rgba(0,0,0,.18);width:132px;pointer-events:auto}
+  .photo-card img{display:block;width:100%;height:88px;object-fit:cover;border-radius:4px}
+  .photo-card .cap{font:11px/1.25 system-ui;margin-top:4px;color:#222;font-weight:600}
+  .photo-card-icon{background:transparent!important;border:none!important}
   .photo-arrow{pointer-events:none}
 </style></head><body>
 <div class="panel">
@@ -76,8 +77,7 @@ for (const [code, a] of Object.entries(airports)) {
 function fitFullTrip(animate) {
   if (!includeGroup.getLayers().length) return;
   map.fitBounds(includeGroup.getBounds(), {
-    padding: [28, 28],
-    maxZoom: 7.5,
+    padding: [24, 24],
     animate: !!animate
   });
 }
@@ -105,8 +105,13 @@ document.getElementById('btn-full').addEventListener('click', () => fitFullTrip(
 document.getElementById('btn-niagara').addEventListener('click', fitNiagara);
 
 // Weston will send photos next — append here
-// Each pin: { lat, lon, title, imgDataUrl /* or url */, side: 'left'|'right' }
-const photoPins = [];
+// Each pin: { lat, lon, title, url /* or imgDataUrl */, side: 'left'|'right' }
+const photoPins = [
+  { lat: 40.2734, lon: -86.5622, title: "Grandma's (Indiana)", url: "photos/01-grandma-indiana.jpg", side: "left" },
+  { lat: 43.079, lon: -79.075, title: "Niagara Falls", url: "photos/02-niagara-falls.jpg", side: "left" },
+  { lat: 40.70, lon: -74.02, title: "New York City", url: "photos/03-nyc-skyline.jpg", side: "right" },
+  { lat: 42.5818559, lon: -71.2799915, title: "Brajac home (Billerica, MA)", url: "photos/04-brajak-billerica.jpg", side: "right" }
+];
 
 const photoLayer = L.layerGroup().addTo(map);
 const photoSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -122,66 +127,73 @@ function clearPhotoDrawings() {
   while (photoSvg.firstChild) photoSvg.removeChild(photoSvg.firstChild);
 }
 
+function cardSlots(size, pins) {
+  const lefts = [];
+  const rights = [];
+  pins.forEach((p, i) => ((p.side === 'right') ? rights : lefts).push(i));
+  const cardW = 132, cardH = 118, pad = 14, gap = 10;
+  const slots = {};
+  function place(indices, side) {
+    const n = Math.max(indices.length, 1);
+    const totalH = indices.length * cardH + Math.max(0, indices.length-1)*gap;
+    let y0 = Math.max(pad, (size.y - totalH) / 2);
+    const x = side === 'left' ? 12 : (size.x - cardW - pad);
+    // Keep left stack below the legend panel
+    const yStart = side === 'left' ? Math.max(y0, 220) : Math.max(pad + 40, y0);
+    indices.forEach((idx, k) => {
+      slots[idx] = { left: x, top: yStart + k*(cardH+gap), w: cardW, h: cardH, side };
+    });
+  }
+  place(lefts, 'left');
+  place(rights, 'right');
+  return slots;
+}
+
 function drawPhotoPins() {
   clearPhotoDrawings();
   if (!photoPins.length) return;
   const size = map.getSize();
-  const pad = 18;
-  const cardW = 150;
-  const cardH = 150;
+  const slots = cardSlots(size, photoPins);
   photoPins.forEach((pin, i) => {
     const latlng = L.latLng(pin.lat, pin.lon);
     L.circleMarker(latlng, {
-      radius: 6, color: '#fff', weight: 2, fillColor: '#e74c3c', fillOpacity: 0.95
+      radius: 7, color: '#fff', weight: 2, fillColor: '#e74c3c', fillOpacity: 0.95
     }).bindPopup('<b>'+(pin.title || 'Photo')+'</b>').addTo(photoLayer);
 
     const pt = map.latLngToContainerPoint(latlng);
-    const side = pin.side === 'right' ? 'right' : 'left';
-    // Place thumbnail in map blank space opposite the denser track when possible
-    let left = side === 'left' ? pad : (size.x - cardW - pad);
-    let top = Math.max(pad, Math.min(size.y - cardH - pad, pt.y - cardH / 2));
-    // Nudge vertically if overlapping the pin horizontally too tightly
-    if (Math.abs(left + cardW / 2 - pt.x) < 40) {
-      top = pt.y > size.y / 2 ? pad : (size.y - cardH - pad);
-    }
-
+    const slot = slots[i];
     const src = pin.imgDataUrl || pin.url || '';
     const html = '<div class="photo-card">'
       + (src ? '<img src="'+src+'" alt=""/>' : '')
       + '<div class="cap">'+(pin.title || ('Photo '+(i+1)))+'</div></div>';
     const icon = L.divIcon({
-      className: '',
+      className: 'photo-card-icon',
       html: html,
-      iconSize: [cardW, cardH],
+      iconSize: [slot.w, slot.h],
       iconAnchor: [0, 0]
     });
-    const cardLatLng = map.containerPointToLatLng([left, top]);
-    L.marker(cardLatLng, { icon: icon, interactive: true }).addTo(photoLayer);
+    const cardLatLng = map.containerPointToLatLng([slot.left, slot.top]);
+    L.marker(cardLatLng, { icon: icon, interactive: true, keyboard: false }).addTo(photoLayer);
 
-    const cardAnchor = L.point(left + (side === 'left' ? cardW : 0), top + Math.min(70, cardH / 2));
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', cardAnchor.x);
-    line.setAttribute('y1', cardAnchor.y);
-    line.setAttribute('x2', pt.x);
-    line.setAttribute('y2', pt.y);
-    line.setAttribute('stroke', '#fff');
-    line.setAttribute('stroke-width', '2.5');
-    line.setAttribute('stroke-opacity', '0.95');
-    photoSvg.appendChild(line);
-    const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line2.setAttribute('x1', cardAnchor.x);
-    line2.setAttribute('y1', cardAnchor.y);
-    line2.setAttribute('x2', pt.x);
-    line2.setAttribute('y2', pt.y);
-    line2.setAttribute('stroke', '#e74c3c');
-    line2.setAttribute('stroke-width', '1.5');
-    line2.setAttribute('stroke-dasharray', '5 3');
-    photoSvg.appendChild(line2);
+    const ax = slot.side === 'left' ? slot.left + slot.w : slot.left;
+    const ay = slot.top + 50;
+    [['#ffffff','2.8',null],['#e74c3c','1.6','5 3']].forEach(([stroke, sw, dash]) => {
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', ax);
+      line.setAttribute('y1', ay);
+      line.setAttribute('x2', pt.x);
+      line.setAttribute('y2', pt.y);
+      line.setAttribute('stroke', stroke);
+      line.setAttribute('stroke-width', sw);
+      line.setAttribute('stroke-opacity', '0.95');
+      if (dash) line.setAttribute('stroke-dasharray', dash);
+      photoSvg.appendChild(line);
+    });
   });
 }
 
 map.on('move zoom resize', drawPhotoPins);
-drawPhotoPins();
 
 fitFullTrip(false);
+drawPhotoPins();
 </script></body></html>
